@@ -25,6 +25,6 @@ To use this project you need to configure the application.properties file with t
 and a RabbitMQ host (you can create one free at https://cloudamqp.com/) 
 
 ## Data Storage
-Well, the principal objective of this project is know some new technologies focused in java stack, that's why I used H2 database.
+Well, the principal objective of this project is know some new technologies focused in java stack, that's why I used H2 database (I'm not focused on database right now).
 The H2 is a local memory database. If you restart the application for some reason, all data is lost. 
 You can easily change the database. Just put another dependency at the pom.xml and configure the database at the application.properties file.
