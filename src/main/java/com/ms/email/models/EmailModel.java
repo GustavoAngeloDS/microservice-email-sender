@@ -2,6 +2,7 @@ package com.ms.email.models;
 
 import com.ms.email.enums.StatusEmail;
 import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -10,7 +11,8 @@ import java.util.UUID;
 
 @Data
 @Entity
-@Table(name = "TB_EMAIL")
+@Table(name = "EMAILS")
+@ToString
 public class EmailModel implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -3,6 +3,8 @@ package com.ms.email.services;
 import com.ms.email.enums.StatusEmail;
 import com.ms.email.models.EmailModel;
 import com.ms.email.repositoriees.EmailRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
@@ -14,15 +16,20 @@ import java.time.LocalDateTime;
 @Service
 public class EmailService {
 
-    @Autowired
-    EmailRepository emailRepository;
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
 
-    @Autowired
+    private EmailRepository emailRepository;
     private JavaMailSender emailSender;
 
-    public EmailModel sendEmail(EmailModel emailModel) {
-        emailModel.setSendDateEmail(LocalDateTime.now());
+    @Autowired
+    public EmailService(EmailRepository emailRepository, JavaMailSender emailSender) {
+        this.emailRepository = emailRepository;
+        this.emailSender = emailSender;
+    }
 
+    public EmailModel sendEmail(EmailModel emailModel) {
+        LOGGER.debug("SENDING MAIL ["+LocalDateTime.now()+"]");
+        emailModel.setSendDateEmail(LocalDateTime.now());
         try{
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(emailModel.getEmailFrom());
@@ -36,6 +43,7 @@ public class EmailService {
         } catch (MailException e){
             emailModel.setStatusEmail(StatusEmail.ERROR);
         } finally {
+            LOGGER.debug("SENT SUCCESSFULLY ["+LocalDateTime.now()+"]");
             return emailRepository.save(emailModel);
         }
     }
