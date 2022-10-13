@@ -12,8 +12,6 @@ public class EmailDto {
     @NotBlank @NotNull
     private String ownerRef;
     @NotBlank @NotNull @Email
-    private String emailFrom;
-    @NotBlank @NotNull @Email
     private String emailTo;
     @NotBlank @NotNull
     private String subject;
