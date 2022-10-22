@@ -1,17 +1,17 @@
 package com.ms.email.services;
 
-import com.ms.email.enums.StatusEmail;
 import com.ms.email.models.EmailModel;
-import com.ms.email.repositoriees.EmailRepository;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import javax.mail.internet.MimeMessage;
 import java.time.LocalDateTime;
 
 @Service
@@ -22,36 +22,38 @@ public class EmailService {
     @Value("${mail.from}")
     private String emailFrom;
 
-    private EmailRepository emailRepository;
     private JavaMailSender emailSender;
 
     @Autowired
-    public EmailService(EmailRepository emailRepository, JavaMailSender emailSender) {
-        this.emailRepository = emailRepository;
+    public EmailService(JavaMailSender emailSender) {
         this.emailSender = emailSender;
     }
 
-    public EmailModel sendEmail(EmailModel emailModel) {
+    public void buildAndSendEmail(EmailModel emailModel) {
+        MimeMessage emailMessage = buildEmailMessage(emailModel);
+        sendEmail(emailMessage);
+    }
+
+    @SneakyThrows
+    public MimeMessage buildEmailMessage(EmailModel emailModel) {
+        MimeMessage message = emailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, false, "utf-8");
+
+        message.setContent(emailModel.getText(), "text/html");
+        helper.setTo(emailModel.getEmailTo());
+        helper.setSubject(emailModel.getSubject());
+        helper.setFrom(emailFrom);
+
+        return message;
+    }
+
+    private void sendEmail(MimeMessage message) {
         LOGGER.debug("SENDING MAIL ["+LocalDateTime.now()+"]");
         try{
-            SimpleMailMessage message = new SimpleMailMessage();
-            emailModel.setSendDateEmail(LocalDateTime.now());
-            emailModel.setEmailFrom(emailFrom);
-            emailModel.setOwnerRef(emailFrom);
-
-            message.setFrom(emailModel.getEmailFrom());
-            message.setTo(emailModel.getEmailTo());
-            message.setSubject(emailModel.getSubject());
-            message.setText(emailModel.getText());
-
             emailSender.send(message);
-            emailModel.setStatusEmail(StatusEmail.SENT);
-
             LOGGER.debug("SENT SUCCESSFULLY ["+LocalDateTime.now()+"]");
-        } catch (MailException e){
-            emailModel.setStatusEmail(StatusEmail.ERROR);
-        } finally {
-            return emailRepository.save(emailModel);
+        } catch (MailException e) {
+            LOGGER.error("ERROR: " + e.getMessage());
         }
     }
 }

@@ -25,6 +25,6 @@ public class EmailConsumer {
     public void listen(@Payload EmailDto emailDto){
         EmailModel emailModel = new EmailModel();
         BeanUtils.copyProperties(emailDto, emailModel);
-        emailService.sendEmail(emailModel);
+        emailService.buildAndSendEmail(emailModel);
     }
 }
