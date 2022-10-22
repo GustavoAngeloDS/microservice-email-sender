@@ -19,7 +19,7 @@ public class EmailService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
 
-    @Value("${spring.mail.username}")
+    @Value("${mail.from}")
     private String emailFrom;
 
     private EmailRepository emailRepository;
@@ -33,22 +33,24 @@ public class EmailService {
 
     public EmailModel sendEmail(EmailModel emailModel) {
         LOGGER.debug("SENDING MAIL ["+LocalDateTime.now()+"]");
-        emailModel.setSendDateEmail(LocalDateTime.now());
-        emailModel.setEmailFrom(emailFrom);
         try{
             SimpleMailMessage message = new SimpleMailMessage();
+            emailModel.setSendDateEmail(LocalDateTime.now());
+            emailModel.setEmailFrom(emailFrom);
+            emailModel.setOwnerRef(emailFrom);
+
             message.setFrom(emailModel.getEmailFrom());
             message.setTo(emailModel.getEmailTo());
             message.setSubject(emailModel.getSubject());
             message.setText(emailModel.getText());
 
             emailSender.send(message);
-
             emailModel.setStatusEmail(StatusEmail.SENT);
+
+            LOGGER.debug("SENT SUCCESSFULLY ["+LocalDateTime.now()+"]");
         } catch (MailException e){
             emailModel.setStatusEmail(StatusEmail.ERROR);
         } finally {
-            LOGGER.debug("SENT SUCCESSFULLY ["+LocalDateTime.now()+"]");
             return emailRepository.save(emailModel);
         }
     }
