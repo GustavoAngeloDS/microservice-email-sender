@@ -9,8 +9,6 @@ import javax.validation.constraints.NotNull;
 @Data
 public class EmailDto {
 
-    @NotBlank @NotNull
-    private String ownerRef;
     @NotBlank @NotNull @Email
     private String emailTo;
     @NotBlank @NotNull
